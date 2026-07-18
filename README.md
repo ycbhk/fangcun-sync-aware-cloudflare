@@ -5,8 +5,11 @@
 ## 部署
 
 ```bash
+# 安装依赖
 npm install
+# 写入共享密钥
 npx wrangler secret put SYNC_AWARE_SECRET
+# 部署到 Cloudflare
 npm run deploy
 ```
 
