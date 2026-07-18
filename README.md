@@ -1,8 +1,8 @@
-# Fangcun Sync Awareness - Cloudflare
+# 方寸工具箱同步感知 - Cloudflare
 
-This deploys the relay on Cloudflare Workers Free using SQLite-backed Durable Objects. Durable Objects store recent events per channel, WebSocket notifies online devices, and HTTP polling remains available as fallback.
+这是方寸工具箱同步感知的 Cloudflare 免费版部署方案。它使用 Worker + SQLite 支持的 Durable Object 保存最近事件，在线设备走 WebSocket 通知，离线设备继续用 HTTP 轮询兜底。
 
-## Deploy
+## 部署
 
 ```bash
 npm install
@@ -10,19 +10,19 @@ npx wrangler secret put SYNC_AWARE_SECRET
 npm run deploy
 ```
 
-Then set the deployed Worker URL as the Fangcun Toolbox endpoint.
+然后把部署后的 Worker 地址填到方寸工具箱的服务端地址里。
 
-## Free-tier Notes
+## 免费版说明
 
-- Use Workers + Durable Objects only.
-- Do not use Workers KV as the event store; free KV writes are too limited and KV is eventually consistent.
-- Keep the plugin polling interval at 10-15 seconds foreground and 30-60 seconds idle unless your Cloudflare account has more quota.
+- 只使用 Workers + Durable Objects。
+- 不要把 Workers KV 当作事件主存储；免费版写入额度偏紧，而且 KV 是最终一致。
+- 建议把插件轮询间隔保持在前台 10-15 秒、空闲 30-60 秒，除非你的 Cloudflare 账号有更高额度。
 
-## Protocol
+## 协议
 
 - `POST /sync/v1/events`
 - `GET /sync/v1/events?since=<cursor>&limit=50`
 - `GET /sync/v1/health`
 - `GET /sync/v1/ws`
 
-All requests are signed by the plugin with HMAC-SHA256.
+所有请求都由插件使用 HMAC-SHA256 签名。
