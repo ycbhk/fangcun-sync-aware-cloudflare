@@ -23,9 +23,10 @@ npm run deploy
 
 ## 协议
 
-- `POST /sync/v1/events`
-- `GET /sync/v1/events?since=<cursor>&limit=50`
-- `GET /sync/v1/health`
-- `GET /sync/v1/ws`
+- `POST /sync/v1/events`：上报同步完成事件
+- `GET /sync/v1/events?since=<cursor>&limit=50`：拉取某个游标之后的新事件
+- `GET /sync/v1/health`：健康检查接口
+- `GET /sync/v1/ws`：WebSocket 实时通知接口
 
 所有请求都由插件使用 HMAC-SHA256 签名。
+
