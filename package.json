@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "Cloudflare Worker + Durable Object sync awareness relay for Fangcun Toolbox.",
+  "description": "方寸工具箱同步感知的 Cloudflare Worker + Durable Object 中继服务。",
   "scripts": {
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
