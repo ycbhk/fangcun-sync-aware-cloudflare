@@ -58,14 +58,14 @@ async function verifySignedRequest(request: Request, env: Env, body = "") {
   const nonce = request.headers.get("x-fc-nonce") || "";
   const signature = request.headers.get("x-fc-signature") || "";
   if (!channelId || !deviceId || !timestamp || !nonce || !signature) {
-    return { ok: false, status: 401, message: "Missing sync awareness signature headers." };
+    return { ok: false, status: 401, message: "缺少同步感知签名请求头。" };
   }
   const ts = Number(timestamp);
   if (!Number.isFinite(ts) || Math.abs(Date.now() - ts) > TIME_SKEW_MS) {
-    return { ok: false, status: 401, message: "Signature timestamp is outside the allowed clock window." };
+    return { ok: false, status: 401, message: "签名时间戳超出允许的时钟窗口。" };
   }
   const expected = await hmac(env.SYNC_AWARE_SECRET, `${request.method.toUpperCase()}\n${url.pathname}\n${timestamp}\n${nonce}\n${body}`);
-  if (!constantTimeEqual(expected, signature)) return { ok: false, status: 401, message: "Invalid sync awareness signature." };
+  if (!constantTimeEqual(expected, signature)) return { ok: false, status: 401, message: "同步感知签名无效。" };
   return { ok: true, channelId };
 }
 
@@ -81,7 +81,7 @@ async function verifyWebSocketRequest(request: Request, env: Env) {
   }
   const ts = Number(timestamp);
   if (!Number.isFinite(ts) || Math.abs(Date.now() - ts) > TIME_SKEW_MS) {
-    return { ok: false, status: 401, message: "Signature timestamp is outside the allowed clock window." };
+    return { ok: false, status: 401, message: "签名时间戳超出允许的时钟窗口。" };
   }
   const expected = await hmac(env.SYNC_AWARE_SECRET, `GET\n${url.pathname}\n${timestamp}\n${nonce}\n`);
   if (!constantTimeEqual(expected, signature)) return { ok: false, status: 401, message: "Invalid WebSocket signature." };
@@ -96,10 +96,10 @@ function durableObjectFor(env: Env, channelId: string) {
 async function route(request: Request, env: Env) {
   if (request.method === "OPTIONS") return json({ ok: true });
   const url = new URL(request.url);
-  if (!url.pathname.startsWith("/sync/v1/")) return json({ ok: false, message: "Not found" }, 404);
+  if (!url.pathname.startsWith("/sync/v1/")) return json({ ok: false, message: "未找到" }, 404);
 
   if (url.pathname === "/sync/v1/ws") {
-    if (request.headers.get("upgrade") !== "websocket") return json({ ok: false, message: "Expected WebSocket upgrade." }, 426);
+    if (request.headers.get("upgrade") !== "websocket") return json({ ok: false, message: "需要 WebSocket 升级请求。" }, 426);
     const auth = await verifyWebSocketRequest(request, env);
     if (!auth.ok || !auth.channelId) return json({ ok: false, message: auth.message }, auth.status);
     return durableObjectFor(env, auth.channelId).fetch(request);
@@ -157,7 +157,7 @@ export class ChannelDurableObject {
     if (url.pathname === "/sync/v1/events" && request.method === "POST") {
       const event = await request.json<SyncEvent>();
       if (!event.id || !event.channelId || !event.deviceId || !event.createdAt) {
-        return json({ ok: false, message: "Invalid sync awareness event." }, 400);
+        return json({ ok: false, message: "同步感知事件无效。" }, 400);
       }
       this.sql.exec(
         "INSERT OR IGNORE INTO events (id, channelId, deviceId, deviceName, kind, source, createdAt) VALUES (?, ?, ?, ?, ?, ?, ?)",
@@ -175,7 +175,7 @@ export class ChannelDurableObject {
       return json({ ok: true, inserted: inserted.length });
     }
 
-    return json({ ok: false, message: "Not found" }, 404);
+    return json({ ok: false, message: "未找到" }, 404);
   }
 
   webSocketMessage() {
@@ -221,3 +221,4 @@ export class ChannelDurableObject {
     }
   }
 }
+
